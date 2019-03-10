@@ -1,0 +1,4 @@
+picamera==1.13
+flask==1.0.2
+Pillow==5.4.1
+numpy==1.16.2
