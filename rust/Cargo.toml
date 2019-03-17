@@ -1,0 +1,8 @@
+[package]
+name = "rust"
+version = "0.1.0"
+authors = ["Martin Indra <martin.indra@mgn.cz>"]
+edition = "2018"
+
+[dependencies]
+serial = "0.4.0"
