@@ -1,10 +1,15 @@
 Welcome to Irro's documentation!
 ================================
 
+This is documentation of Irro robot. See its `GitHub repository`_.
+
+.. _GitHub repository: https://github.com/Indy2222/irro
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   ci
 
 Indices and tables
 ==================
