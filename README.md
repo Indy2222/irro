@@ -1,7 +1,8 @@
 Irro
 =====
 
-This is my personal robot project and a very first robot I am building.
+This is my personal robot project and a very first robot I am building. Please
+visit [irro.mgn.cz](http://irro.mgn.cz) to see this project's documentation.
 
 This project is free software, see its [license](/LICENSE).
 
