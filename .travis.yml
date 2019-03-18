@@ -1,0 +1,12 @@
+dist: xenial
+services:
+  - docker
+before_install:
+  - docker pull miindy/irro-ci:latest
+script:
+  - >
+    docker run
+    --volume `pwd`:/root/irro
+    --workdir /root/irro
+    miindy/irro-ci:latest
+    /root/irro/ci/ci.sh

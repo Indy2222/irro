@@ -5,6 +5,7 @@ Welcome to Irro's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   ci
 
 Indices and tables
 ==================
