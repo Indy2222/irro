@@ -2,7 +2,7 @@ BUILDDIR      = _build
 
 .PHONY: html
 html:
-	python -m sphinx -b html -W . "$(BUILDDIR)"
+	python3 -m sphinx -b html -W . "$(BUILDDIR)"
 
 .PHONY: clean
 clean:
