@@ -10,4 +10,5 @@ This is documentation of Irro robot. See its `GitHub repository`_.
    :caption: Contents:
 
    ci
+   hw
    serial_protocol
