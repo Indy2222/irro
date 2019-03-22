@@ -1,6 +1,9 @@
 Irro
 =====
 
+[![Travis status](https://travis-ci.org/Indy2222/irro.svg?branch=master)](https://travis-ci.org/Indy2222/irro)
+[![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 This is my personal robot project and a very first robot I am building. Please
 visit [irro.mgn.cz](http://irro.mgn.cz) to see this project's documentation.
 
