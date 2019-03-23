@@ -35,3 +35,35 @@ LED (0x00)
   significant bit corresponds to LED number 0.
 
   See :ref:`hw.leds`.
+
+.. _serial.commands.motor:
+
+Motor (0x01)
+------------
+
+* ``0x00`` (set motors power ratio) -- this command sets left and right motor
+  power to a value between -32,768 (max power in backward direction) to 32,767
+  (max power in forward direction). 0 means that the motor is off. Note that
+  maximum motor power is regulated by Arduino so a single motor pair never
+  draws more than 4 amperes of current (which gives 48 watts) so total motor
+  current draw is kept under 8A in all circumstances (except short bursts).
+
+  The command payload has 4 bytes, first two bytes (i16) are left motor power
+  and the other two bytes are right motor power.
+
+Examples
+========
+
+The following command sets left motor to maximum forward direction and right
+motor to 25% backward direction.
+
+* Command: ``01 00 7f ff 1f ff df ff``
+
+  #. Byte ``01`` indicates that the command belongs to
+     :ref:`motor <serial.commands.motor>` group.
+  #. Byte ``00`` indicates that this command sets motor power ratio.
+  #. Bytes ``7f ff`` (32,767 in decimal) set the left motor to maximum forward
+     power.
+  #. Bytes ``df ff`` (-8193 in decimal) set the right motor 25% backward power.
+
+* Response: ``00 00`` -- response with no payload.

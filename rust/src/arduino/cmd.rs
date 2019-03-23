@@ -65,6 +65,97 @@ pub mod led {
     }
 }
 
+pub mod motor {
+    //! Implementation of motor commands.
+
+    use super::super::binary::Message;
+    use std::i16;
+    use std::sync::mpsc::Sender;
+
+    const PREFIX: u16 = 0x0100;
+
+    /// Power ratio of Irro's left and right motor.
+    pub struct MotorPowerRatio {
+        /// A number between -1.0 and 1.0 (inclusive).
+        left: f32,
+        /// A number between -1.0 and 1.0 (inclusive).
+        right: f32,
+    }
+
+    impl MotorPowerRatio {
+        /// Construct the struct from two floats between -1.0 (max backward
+        /// power) and 1.0 (max forward power). Note that left and right motors
+        /// are independent.
+        ///
+        /// # Panics
+        ///
+        /// This method panic if both numbers aren't between -1.0 and 1.0
+        /// (inclusive).
+        pub fn from_floats(left: f32, right: f32) -> Self {
+            if !left.is_finite() || !right.is_finite() || left.abs() > 1.0 || right.abs() > 1.0 {
+                // Don't use is_infinite() as it doesn't include NaNs
+                panic!("Motor power ratio must be a number between -1 and 1.");
+            }
+            MotorPowerRatio { left, right }
+        }
+
+        /// Command Arduino to set motor power ratio to this.
+        ///
+        /// # Arguments
+        ///
+        /// * `sender` - sender as returned from `super::binary::Connection::new()`.
+        pub fn send(&self, sender: &Sender<Message>) {
+            let left = Self::float_to_int(self.left);
+            let right = Self::float_to_int(self.right);
+            let payload = vec![
+                (left >> 8) as u8,
+                (left & 0xff) as u8,
+                (right >> 8) as u8,
+                (right & 0xff) as u8,
+            ];
+            // There is no interesting response.
+            let (message, _) = Message::new(PREFIX, payload);
+            sender.send(message).unwrap();
+        }
+
+        /// Convert an f32 value between -1.0 and 1.0 to full range i16.
+        fn float_to_int(value: f32) -> i16 {
+            if value.is_sign_positive() {
+                (value * f32::from(i16::MAX)) as i16
+            } else {
+                (value.abs() * f32::from(i16::MIN)) as i16
+            }
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn test_send() {
+            use super::super::tests::MessageTest;
+
+            let test = MessageTest::new();
+            let pr = MotorPowerRatio::from_floats(0.5, 0.25);
+            pr.send(test.sender());
+            test.test(0x0100, vec![63, 255, 31, 255]);
+        }
+
+        #[test]
+        fn test_float_to_int() {
+            let res: i16 = MotorPowerRatio::float_to_int(-1.0);
+            assert_eq!(res, -32_768);
+            let res: i16 = MotorPowerRatio::float_to_int(1.0);
+            assert_eq!(res, 32_767);
+            let res: i16 = MotorPowerRatio::float_to_int(0.0);
+            assert_eq!(res, 0);
+            let res: i16 = MotorPowerRatio::float_to_int(-0.15);
+            assert_eq!(res, -4915);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
