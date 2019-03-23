@@ -10,3 +10,9 @@ This is documentation of Irro robot. See its `GitHub repository`_.
    :caption: Contents:
 
    ci
+   hw
+   serial_protocol
+
+Also see `Rust docs`_.
+
+.. _Rust docs: rust/irro/index.html

@@ -7,16 +7,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "libc"
-version = "0.2.50"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "rust"
+name = "irro"
 version = "0.1.0"
 dependencies = [
  "serial 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "libc"
+version = "0.2.50"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serial"

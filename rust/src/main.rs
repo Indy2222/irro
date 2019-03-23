@@ -1,28 +1,16 @@
-extern crate serial;
-
-use serial::prelude::*;
-use std::io::prelude::*;
-use std::io::BufReader;
-
+use irro::arduino::binary::Connection;
+use irro::arduino::cmd::led::LedMask;
+use std::thread;
 use std::time::Duration;
 
-// see: https://www.arduino.cc/en/Serial/Begin
-const SETTINGS: serial::PortSettings = serial::PortSettings {
-    baud_rate: serial::Baud115200,
-    char_size: serial::Bits8,
-    parity: serial::ParityNone,
-    stop_bits: serial::Stop1,
-    flow_control: serial::FlowNone,
-};
-
 fn main() {
-    let mut port = serial::open("/dev/ttyACM1").unwrap();
-    port.configure(&SETTINGS).unwrap();
-    port.set_timeout(Duration::from_secs(30)).unwrap();
-    let reader = BufReader::new(port);
+    let sender = Connection::initiate("/dev/ttyACM1").unwrap();
 
-    for line in reader.lines() {
-        let line = line.unwrap();
-        println!("Line: {}", line);
+    loop {
+        LedMask::from_bools(vec![true]).send(&sender);
+        thread::sleep(Duration::from_millis(800));
+
+        LedMask::from_bools(vec![false]).send(&sender);
+        thread::sleep(Duration::from_millis(800));
     }
 }
