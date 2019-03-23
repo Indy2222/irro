@@ -6,3 +6,11 @@ edition = "2018"
 
 [dependencies]
 serial = "0.4.0"
+
+[lib]
+name = "irro"
+path = "src/lib.rs"
+
+[[bin]]
+name = "irro-cli"
+path = "src/main.rs"
