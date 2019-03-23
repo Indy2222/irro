@@ -43,3 +43,10 @@ will be used for battery power consumption and capacity estimation.
 .. TODO add electrical wiring here Issue#1
 
 .. TODO add photo of fully assembled robot
+
+.. _hw.leds:
+
+LEDs
+====
+
+* LED 0 -- Arduino onboard LED.

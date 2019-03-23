@@ -34,4 +34,4 @@ LED (0x00)
   byte payload which is a bit LED on/off bit mask (1 for on, 0 for off). Most
   significant bit corresponds to LED number 0.
 
-.. TODO link to documentation of which LED is which
+  See :ref:`hw.leds`.
