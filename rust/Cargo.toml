@@ -1,5 +1,5 @@
 [package]
-name = "rust"
+name = "irro"
 version = "0.1.0"
 authors = ["Martin Indra <martin.indra@mgn.cz>"]
 edition = "2018"
