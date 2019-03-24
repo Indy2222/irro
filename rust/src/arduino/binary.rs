@@ -139,11 +139,13 @@ impl Connection {
     /// # Arguments
     ///
     /// * `device` - serial port device, for example ```"/dev/ttyACM1"```.
-    pub fn initiate(device: &str) -> Result<Sender<Message>, serialport::Error> {
-        let (sender, receiver) = mpsc::channel();
-
+    pub fn init_from_device(device: &str) -> Result<Sender<Message>, serialport::Error> {
         let port = serialport::open_with_settings(device, &SETTINGS)?;
+        Ok(Self::initiate(port))
+    }
 
+    fn initiate(port: Box<SerialPort>) -> Sender<Message> {
+        let (sender, receiver) = mpsc::channel();
         thread::spawn(move || {
             let connection = Connection {
                 receiver,
@@ -153,7 +155,7 @@ impl Connection {
             };
             connection.start();
         });
-        Ok(sender)
+        sender
     }
 
     /// Start the communication loop which sends messages to Arduino and
@@ -234,5 +236,41 @@ impl Connection {
             in_air.respond(buf[offset..(offset + payload_len)].to_vec());
             offset += payload_len;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_connection() {
+        use serialport::posix::TTYPort;
+
+        let (mut master, slave) = TTYPort::pair().unwrap();
+
+        let sender = Connection::initiate(Box::new(slave));
+        let (message_a, receiver_a) = Message::new(23, vec![6, 2, 1]);
+        let (message_b, receiver_b) = Message::new(25, vec![10, 20, 30, 40]);
+
+        sender.send(message_a).unwrap();
+        sender.send(message_b).unwrap();
+
+        let mut buf = [0; 7];
+        master.read_exact(&mut buf).unwrap();
+        assert_eq!(buf, [0u8, 23, 0, 3, 6, 2, 1]);
+
+        let mut buf = [0; 8];
+        master.read_exact(&mut buf).unwrap();
+        assert_eq!(buf, [0u8, 25, 0, 4, 10, 20, 30, 40]);
+
+        master.write(&[0u8, 5, 10, 9, 8, 7, 6]).unwrap();
+        master.write(&[0u8, 2, 255, 128]).unwrap();
+
+        let recv = receiver_b.recv().unwrap();
+        assert_eq!(recv, vec![255, 128]);
+
+        let recv = receiver_a.recv().unwrap();
+        assert_eq!(recv, vec![10, 9, 8, 7, 6]);
     }
 }
