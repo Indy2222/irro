@@ -217,30 +217,23 @@ impl Connection {
     /// are immediately send to clients via each message channel. The function
     /// returns number of processed responses.
     fn process_responses(&mut self) {
-        loop {
-            let mut buffer = [0; 2];
-            if let Err(err) = self.port.read_exact(&mut buffer) {
-                match err.kind() {
-                    // There is a tiny timeout on the underlying serial,
-                    // therefore the read times out if there is not data in the
-                    // system buffer.
-                    ErrorKind::TimedOut => break,
-                    _ => panic!("Error while reading data from Arduino: {}", err),
-                }
-            }
-
-            let payload_len: usize = ((buffer[0] as usize) << 8) | (buffer[1] as usize);
-            let mut buffer = vec![0; payload_len];
-
-            if let Err(err) = self.port.read_exact(&mut buffer[..payload_len]) {
+        let mut buf = Vec::new();
+        if let Err(err) = self.port.read_to_end(&mut buf) {
+            if err.kind() != ErrorKind::TimedOut {
                 panic!("Error while reading data from Arduino: {}", err);
             }
+        }
 
+        let mut offset = 0;
+        while offset < buf.len() {
+            let payload_len: usize = ((buf[offset] as usize) << 8) | (buf[offset + 1] as usize);
             let in_air = self
                 .in_air
                 .pop_back()
                 .expect("Got an unexpected response from Arduino.");
-            in_air.respond(buffer);
+            offset += 2;
+            in_air.respond(buf[offset..(offset + payload_len)].to_vec());
+            offset += payload_len;
         }
     }
 }
