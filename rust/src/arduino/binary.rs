@@ -8,7 +8,7 @@ use serialport::{self, DataBits, FlowControl, Parity, SerialPort, SerialPortSett
 use std::collections::VecDeque;
 use std::io::prelude::*;
 use std::io::ErrorKind;
-use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
+use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
@@ -123,9 +123,8 @@ pub struct Connection {
     /// A queue of not yet responded messages. New messages are appended to
     /// front and resolved messages are popped from back.
     in_air: VecDeque<InAir>,
-    /// This is not-None in case that a message couldn't be sent right away due
-    /// to full Arduino buffer.
-    waiting_message: Option<Message>,
+    /// Buffer of messages waiting to be send.
+    waiting_messages: VecDeque<Message>,
 }
 
 impl Connection {
@@ -151,7 +150,7 @@ impl Connection {
                 receiver,
                 port,
                 in_air: VecDeque::new(),
-                waiting_message: None,
+                waiting_messages: VecDeque::new(),
             };
             connection.start();
         });
@@ -163,54 +162,44 @@ impl Connection {
     fn start(mut self) -> ! {
         loop {
             self.process_responses();
-            self = self.process_messages();
+            self.process_messages();
         }
     }
 
-    fn process_messages(mut self) -> Self {
-        loop {
-            let message: Option<Message> = if self.waiting_message.is_some() {
-                let message = self.waiting_message;
-                self.waiting_message = None;
-                message
-            } else {
-                match self.receiver.recv_timeout(Duration::from_secs(1)) {
-                    Err(RecvTimeoutError::Timeout) => None,
-                    Err(RecvTimeoutError::Disconnected) => {
-                        panic!("All data producers have disconnected.");
-                    }
-                    Ok(message) => Some(message),
-                }
-            };
+    fn process_messages(&mut self) {
+        self.waiting_messages.extend(self.receiver.try_iter());
 
-            if message.is_none() {
-                break self;
-            }
+        let bytes_in_air: usize = self.in_air.iter().map(|ia| ia.len()).sum();
+        let mut remaining = ARDUINO_BUFFER_SIZE - bytes_in_air;
+        let mut to_send = Vec::new();
 
-            let message = message.unwrap();
+        while let Some(message) = self.waiting_messages.pop_front() {
             assert!(message.len() <= ARDUINO_BUFFER_SIZE);
 
-            let bytes_in_air: usize = self.in_air.iter().map(|ia| ia.len()).sum();
-            let remaining = ARDUINO_BUFFER_SIZE - bytes_in_air;
-
             if remaining < message.len() {
-                self.waiting_message = Some(message);
-                break self;
+                self.waiting_messages.push_front(message);
+                break;
             }
+
+            remaining -= message.len();
 
             let (command, payload, sender) = message.destructure();
             let payload_len = payload.len();
             assert!(payload_len < 256 * 256);
-            let header: [u8; 4] = [
-                (command >> 8) as u8,
-                (command & 0xff) as u8,
-                (payload_len >> 8) as u8,
-                (payload_len & 0xff) as u8,
-            ];
-            // TODO nicer errors
-            self.port.write_all(&header).unwrap();
-            self.port.write_all(&payload[..]).unwrap();
-            self.in_air.push_front(InAir::new(payload_len + 4, sender));
+
+            self.in_air.push_back(InAir::new(payload_len, sender));
+
+            to_send.push((command >> 8) as u8);
+            to_send.push((command & 0xff) as u8);
+            to_send.push((payload_len >> 8) as u8);
+            to_send.push((payload_len & 0xff) as u8);
+            to_send.extend(payload);
+        }
+
+        if !to_send.is_empty() {
+            if let Err(err) = self.port.write_all(&to_send[..]) {
+                panic!("Error while writing data to Arduino: {}", err);
+            }
         }
     }
 
@@ -230,7 +219,7 @@ impl Connection {
             let payload_len: usize = ((buf[offset] as usize) << 8) | (buf[offset + 1] as usize);
             let in_air = self
                 .in_air
-                .pop_back()
+                .pop_front()
                 .expect("Got an unexpected response from Arduino.");
             offset += 2;
             in_air.respond(buf[offset..(offset + payload_len)].to_vec());
