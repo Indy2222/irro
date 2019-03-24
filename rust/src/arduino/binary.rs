@@ -4,7 +4,7 @@
 //!
 //! See [protocol documentation](http://irro.mgn.cz/serial_protocol.html).
 
-use serial::prelude::*;
+use serialport::{self, DataBits, FlowControl, Parity, SerialPort, SerialPortSettings, StopBits};
 use std::collections::VecDeque;
 use std::io::prelude::*;
 use std::io::ErrorKind;
@@ -14,12 +14,13 @@ use std::time::Duration;
 
 pub const ARDUINO_BUFFER_SIZE: usize = 64;
 // see: https://www.arduino.cc/en/Serial/Begin
-const SETTINGS: serial::PortSettings = serial::PortSettings {
-    baud_rate: serial::Baud115200,
-    char_size: serial::Bits8,
-    parity: serial::ParityNone,
-    stop_bits: serial::Stop1,
-    flow_control: serial::FlowNone,
+const SETTINGS: SerialPortSettings = SerialPortSettings {
+    baud_rate: 115_200,
+    data_bits: DataBits::Eight,
+    parity: Parity::None,
+    stop_bits: StopBits::One,
+    flow_control: FlowControl::None,
+    timeout: Duration::from_millis(1000),
 };
 
 /// This struct represent an individual command which could be send to Arduino.
@@ -118,7 +119,7 @@ pub struct Connection {
     /// Receiver used to get commands to be send to the Arduino.
     receiver: Receiver<Message>,
     /// Serial port writer.
-    port: serial::SystemPort,
+    port: Box<SerialPort>,
     /// A queue of not yet responded messages. New messages are appended to
     /// front and resolved messages are popped from back.
     in_air: VecDeque<InAir>,
@@ -138,12 +139,10 @@ impl Connection {
     /// # Arguments
     ///
     /// * `device` - serial port device, for example ```"/dev/ttyACM1"```.
-    pub fn initiate(device: &str) -> Result<Sender<Message>, serial::Error> {
+    pub fn initiate(device: &str) -> Result<Sender<Message>, serialport::Error> {
         let (sender, receiver) = mpsc::channel();
 
-        let mut port = serial::open(device)?;
-        port.configure(&SETTINGS).unwrap();
-        port.set_timeout(Duration::from_millis(1000)).unwrap();
+        let port = serialport::open_with_settings(device, &SETTINGS)?;
 
         thread::spawn(move || {
             let connection = Connection {
