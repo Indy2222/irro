@@ -12,6 +12,8 @@ use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
+/// Size of Arduino serial port buffer. See [Arduino
+/// Docs](https://www.arduino.cc/en/Reference/SoftwareSerial).
 pub const ARDUINO_BUFFER_SIZE: usize = 64;
 // see: https://www.arduino.cc/en/Serial/Begin
 const SETTINGS: SerialPortSettings = SerialPortSettings {
