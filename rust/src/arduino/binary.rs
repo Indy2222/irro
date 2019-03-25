@@ -4,22 +4,23 @@
 //!
 //! See [protocol documentation](http://irro.mgn.cz/serial_protocol.html).
 
-use serial::prelude::*;
+use serialport::{self, DataBits, FlowControl, Parity, SerialPort, SerialPortSettings, StopBits};
 use std::collections::VecDeque;
 use std::io::prelude::*;
 use std::io::ErrorKind;
-use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
+use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
 pub const ARDUINO_BUFFER_SIZE: usize = 64;
 // see: https://www.arduino.cc/en/Serial/Begin
-const SETTINGS: serial::PortSettings = serial::PortSettings {
-    baud_rate: serial::Baud115200,
-    char_size: serial::Bits8,
-    parity: serial::ParityNone,
-    stop_bits: serial::Stop1,
-    flow_control: serial::FlowNone,
+const SETTINGS: SerialPortSettings = SerialPortSettings {
+    baud_rate: 115_200,
+    data_bits: DataBits::Eight,
+    parity: Parity::None,
+    stop_bits: StopBits::One,
+    flow_control: FlowControl::None,
+    timeout: Duration::from_millis(1000),
 };
 
 /// This struct represent an individual command which could be send to Arduino.
@@ -118,13 +119,12 @@ pub struct Connection {
     /// Receiver used to get commands to be send to the Arduino.
     receiver: Receiver<Message>,
     /// Serial port writer.
-    port: serial::SystemPort,
+    port: Box<SerialPort>,
     /// A queue of not yet responded messages. New messages are appended to
     /// front and resolved messages are popped from back.
     in_air: VecDeque<InAir>,
-    /// This is not-None in case that a message couldn't be sent right away due
-    /// to full Arduino buffer.
-    waiting_message: Option<Message>,
+    /// Buffer of messages waiting to be send.
+    waiting_messages: VecDeque<Message>,
 }
 
 impl Connection {
@@ -138,23 +138,23 @@ impl Connection {
     /// # Arguments
     ///
     /// * `device` - serial port device, for example ```"/dev/ttyACM1"```.
-    pub fn initiate(device: &str) -> Result<Sender<Message>, serial::Error> {
+    pub fn init_from_device(device: &str) -> Result<Sender<Message>, serialport::Error> {
+        let port = serialport::open_with_settings(device, &SETTINGS)?;
+        Ok(Self::initiate(port))
+    }
+
+    fn initiate(port: Box<SerialPort>) -> Sender<Message> {
         let (sender, receiver) = mpsc::channel();
-
-        let mut port = serial::open(device)?;
-        port.configure(&SETTINGS).unwrap();
-        port.set_timeout(Duration::from_millis(1000)).unwrap();
-
         thread::spawn(move || {
             let connection = Connection {
                 receiver,
                 port,
                 in_air: VecDeque::new(),
-                waiting_message: None,
+                waiting_messages: VecDeque::new(),
             };
             connection.start();
         });
-        Ok(sender)
+        sender
     }
 
     /// Start the communication loop which sends messages to Arduino and
@@ -162,54 +162,44 @@ impl Connection {
     fn start(mut self) -> ! {
         loop {
             self.process_responses();
-            self = self.process_messages();
+            self.process_messages();
         }
     }
 
-    fn process_messages(mut self) -> Self {
-        loop {
-            let message: Option<Message> = if self.waiting_message.is_some() {
-                let message = self.waiting_message;
-                self.waiting_message = None;
-                message
-            } else {
-                match self.receiver.recv_timeout(Duration::from_secs(1)) {
-                    Err(RecvTimeoutError::Timeout) => None,
-                    Err(RecvTimeoutError::Disconnected) => {
-                        panic!("All data producers have disconnected.");
-                    }
-                    Ok(message) => Some(message),
-                }
-            };
+    fn process_messages(&mut self) {
+        self.waiting_messages.extend(self.receiver.try_iter());
 
-            if message.is_none() {
-                break self;
-            }
+        let bytes_in_air: usize = self.in_air.iter().map(|ia| ia.len()).sum();
+        let mut remaining = ARDUINO_BUFFER_SIZE - bytes_in_air;
+        let mut to_send = Vec::new();
 
-            let message = message.unwrap();
+        while let Some(message) = self.waiting_messages.pop_front() {
             assert!(message.len() <= ARDUINO_BUFFER_SIZE);
 
-            let bytes_in_air: usize = self.in_air.iter().map(|ia| ia.len()).sum();
-            let remaining = ARDUINO_BUFFER_SIZE - bytes_in_air;
-
             if remaining < message.len() {
-                self.waiting_message = Some(message);
-                break self;
+                self.waiting_messages.push_front(message);
+                break;
             }
+
+            remaining -= message.len();
 
             let (command, payload, sender) = message.destructure();
             let payload_len = payload.len();
             assert!(payload_len < 256 * 256);
-            let header: [u8; 4] = [
-                (command >> 8) as u8,
-                (command & 0xff) as u8,
-                (payload_len >> 8) as u8,
-                (payload_len & 0xff) as u8,
-            ];
-            // TODO nicer errors
-            self.port.write_all(&header).unwrap();
-            self.port.write_all(&payload[..]).unwrap();
-            self.in_air.push_front(InAir::new(payload_len + 4, sender));
+
+            self.in_air.push_back(InAir::new(payload_len, sender));
+
+            to_send.push((command >> 8) as u8);
+            to_send.push((command & 0xff) as u8);
+            to_send.push((payload_len >> 8) as u8);
+            to_send.push((payload_len & 0xff) as u8);
+            to_send.extend(payload);
+        }
+
+        if !to_send.is_empty() {
+            if let Err(err) = self.port.write_all(&to_send[..]) {
+                panic!("Error while writing data to Arduino: {}", err);
+            }
         }
     }
 
@@ -217,30 +207,59 @@ impl Connection {
     /// are immediately send to clients via each message channel. The function
     /// returns number of processed responses.
     fn process_responses(&mut self) {
-        loop {
-            let mut buffer = [0; 2];
-            if let Err(err) = self.port.read_exact(&mut buffer) {
-                match err.kind() {
-                    // There is a tiny timeout on the underlying serial,
-                    // therefore the read times out if there is not data in the
-                    // system buffer.
-                    ErrorKind::TimedOut => break,
-                    _ => panic!("Error while reading data from Arduino: {}", err),
-                }
-            }
-
-            let payload_len: usize = ((buffer[0] as usize) << 8) | (buffer[1] as usize);
-            let mut buffer = vec![0; payload_len];
-
-            if let Err(err) = self.port.read_exact(&mut buffer[..payload_len]) {
+        let mut buf = Vec::new();
+        if let Err(err) = self.port.read_to_end(&mut buf) {
+            if err.kind() != ErrorKind::TimedOut {
                 panic!("Error while reading data from Arduino: {}", err);
             }
+        }
 
+        let mut offset = 0;
+        while offset < buf.len() {
+            let payload_len: usize = ((buf[offset] as usize) << 8) | (buf[offset + 1] as usize);
             let in_air = self
                 .in_air
-                .pop_back()
+                .pop_front()
                 .expect("Got an unexpected response from Arduino.");
-            in_air.respond(buffer);
+            offset += 2;
+            in_air.respond(buf[offset..(offset + payload_len)].to_vec());
+            offset += payload_len;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_connection() {
+        use serialport::posix::TTYPort;
+
+        let (mut master, slave) = TTYPort::pair().unwrap();
+
+        let sender = Connection::initiate(Box::new(slave));
+        let (message_a, receiver_a) = Message::new(23, vec![6, 2, 1]);
+        let (message_b, receiver_b) = Message::new(25, vec![10, 20, 30, 40]);
+
+        sender.send(message_a).unwrap();
+        sender.send(message_b).unwrap();
+
+        let mut buf = [0; 7];
+        master.read_exact(&mut buf).unwrap();
+        assert_eq!(buf, [0u8, 23, 0, 3, 6, 2, 1]);
+
+        let mut buf = [0; 8];
+        master.read_exact(&mut buf).unwrap();
+        assert_eq!(buf, [0u8, 25, 0, 4, 10, 20, 30, 40]);
+
+        master.write(&[0u8, 5, 10, 9, 8, 7, 6]).unwrap();
+        master.write(&[0u8, 2, 255, 128]).unwrap();
+
+        let recv = receiver_b.recv().unwrap();
+        assert_eq!(recv, vec![255, 128]);
+
+        let recv = receiver_a.recv().unwrap();
+        assert_eq!(recv, vec![10, 9, 8, 7, 6]);
     }
 }

@@ -4,7 +4,7 @@ use std::thread;
 use std::time::Duration;
 
 fn main() {
-    let sender = Connection::initiate("/dev/ttyACM1").unwrap();
+    let sender = Connection::init_from_device("/dev/ttyACM1").unwrap();
 
     loop {
         LedMask::from_bools(vec![true]).send(&sender);

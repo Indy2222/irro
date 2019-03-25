@@ -7,6 +7,9 @@ RUN apt-get update \
         curl \
         python3 \
         python3-pip \
+        # This two are needed by serialport Rust dependency.
+        pkg-config \
+        libudev-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
