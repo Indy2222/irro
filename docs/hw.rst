@@ -18,7 +18,7 @@ vision (accompanied with NIR LEDs).
 The robot is actuated with four continuous tracks (two on each side) each
 powered by a 12V brushed DC motor.
 
-.. TODO add a chassis photo here
+.. image:: _static/chassis.jpeg
 
 The robot is powered by six, serially connected, 18650 li-on battery cells with
 capacity of 3.3Ah. The batteries provide voltage between 25.2V (fully charged,
