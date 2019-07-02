@@ -5,7 +5,7 @@ void setup() {
 }
 
 void loop() {
-  while (Serial.available() > 0) {
+  while (Serial.available() >= 4) {
     // Read all commands first before continuing to do other work. The buffer
     // is only 64 bytes, better to read everything as often as possible.
     int cmd = readInt();
@@ -21,10 +21,13 @@ void loop() {
     Serial.write(0);
     Serial.write(0);
   }
+
+  // Other logic will be placed in a [short] loop here.
 }
 
+// Read 2 byte int from serial port. Do not call this method if there is less
+// than 2 bytes available in the buffer.
 int readInt() {
-  while (Serial.available() < 2);
   int cmd = Serial.read() << 8;
   cmd |= Serial.read();
   return cmd;

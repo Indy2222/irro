@@ -12,6 +12,8 @@ use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
+/// Size of Arduino serial port buffer. See [Arduino
+/// Docs](https://www.arduino.cc/en/Reference/SoftwareSerial).
 pub const ARDUINO_BUFFER_SIZE: usize = 64;
 // see: https://www.arduino.cc/en/Serial/Begin
 const SETTINGS: SerialPortSettings = SerialPortSettings {
@@ -114,15 +116,51 @@ impl InAir {
     }
 }
 
+/// A de-queue of not yet responded messages.
+struct InAirQueue {
+    /// A queue of not yet responded messages. New messages are appended to
+    /// front and resolved messages are popped from back.
+    queue: VecDeque<InAir>,
+    /// Total (i.e. sum) size of all not responded messages. This bookkeeping
+    /// is necessary to avoid Arduino serial buffer overflow.
+    size: usize,
+}
+
+impl InAirQueue {
+    /// Create an empty queue.
+    fn new() -> Self {
+        InAirQueue {
+            queue: VecDeque::new(),
+            size: 0,
+        }
+    }
+
+    fn push(&mut self, payload_len: usize, sender: Sender<Vec<u8>>) {
+        self.queue.push_back(InAir::new(payload_len, sender));
+        self.size += payload_len;
+    }
+
+    fn respond(&mut self, response: Vec<u8>) {
+        let in_air = self
+            .queue
+            .pop_front()
+            .expect("There is no message waiting for a response.");
+        self.size -= in_air.len();
+        in_air.respond(response);
+    }
+
+    fn size(&self) -> usize {
+        self.size
+    }
+}
+
 /// An asynchronous connecting to the Arduino.
 pub struct Connection {
     /// Receiver used to get commands to be send to the Arduino.
     receiver: Receiver<Message>,
     /// Serial port writer.
     port: Box<SerialPort>,
-    /// A queue of not yet responded messages. New messages are appended to
-    /// front and resolved messages are popped from back.
-    in_air: VecDeque<InAir>,
+    in_air_queue: InAirQueue,
     /// Buffer of messages waiting to be send.
     waiting_messages: VecDeque<Message>,
 }
@@ -149,7 +187,7 @@ impl Connection {
             let connection = Connection {
                 receiver,
                 port,
-                in_air: VecDeque::new(),
+                in_air_queue: InAirQueue::new(),
                 waiting_messages: VecDeque::new(),
             };
             connection.start();
@@ -169,8 +207,7 @@ impl Connection {
     fn process_messages(&mut self) {
         self.waiting_messages.extend(self.receiver.try_iter());
 
-        let bytes_in_air: usize = self.in_air.iter().map(|ia| ia.len()).sum();
-        let mut remaining = ARDUINO_BUFFER_SIZE - bytes_in_air;
+        let mut remaining = ARDUINO_BUFFER_SIZE - self.in_air_queue.size();
         let mut to_send = Vec::new();
 
         while let Some(message) = self.waiting_messages.pop_front() {
@@ -187,7 +224,7 @@ impl Connection {
             let payload_len = payload.len();
             assert!(payload_len < 256 * 256);
 
-            self.in_air.push_back(InAir::new(payload_len, sender));
+            self.in_air_queue.push(payload_len, sender);
 
             to_send.push((command >> 8) as u8);
             to_send.push((command & 0xff) as u8);
@@ -217,12 +254,12 @@ impl Connection {
         let mut offset = 0;
         while offset < buf.len() {
             let payload_len: usize = ((buf[offset] as usize) << 8) | (buf[offset + 1] as usize);
-            let in_air = self
-                .in_air
-                .pop_front()
-                .expect("Got an unexpected response from Arduino.");
             offset += 2;
-            in_air.respond(buf[offset..(offset + payload_len)].to_vec());
+            // Unfortunately there is no trivial way how to split the Vec into
+            // multiple owned Vec-s. See
+            // https://github.com/rust-lang/rust/issues/40708
+            self.in_air_queue
+                .respond(buf[offset..(offset + payload_len)].to_vec());
             offset += payload_len;
         }
     }
@@ -231,6 +268,39 @@ impl Connection {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_in_air_queue() {
+        let mut queue = InAirQueue::new();
+        assert_eq!(queue.size(), 0);
+
+        let (sender, receiver_a) = mpsc::channel();
+        queue.push(2, sender);
+        assert_eq!(queue.size(), 2);
+
+        let (sender, receiver_b) = mpsc::channel();
+        queue.push(3, sender);
+        assert_eq!(queue.size(), 5);
+
+        let (sender, receiver_c) = mpsc::channel();
+        queue.push(4, sender);
+        assert_eq!(queue.size(), 9);
+
+        queue.respond(vec![1, 2]);
+        assert_eq!(queue.size(), 7);
+        let response = receiver_a.recv().unwrap();
+        assert_eq!(response, vec![1, 2]);
+
+        queue.respond(vec![3, 4]);
+        assert_eq!(queue.size(), 4);
+        let response = receiver_b.recv().unwrap();
+        assert_eq!(response, vec![3, 4]);
+
+        queue.respond(vec![5, 6]);
+        assert_eq!(queue.size(), 0);
+        let response = receiver_c.recv().unwrap();
+        assert_eq!(response, vec![5, 6]);
+    }
 
     #[test]
     fn test_connection() {
