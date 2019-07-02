@@ -27,13 +27,13 @@ draw of 8A. The batteries are connected to a BMS on a separate PCB.
 
 Two buck converters, connected to the batteries, provide power for all
 electronics on the robot. One 5V buck powers the RPI (the Arduino is powered
-over the USB from the RPI). The other 12V buck powers the motors (via a motor
-controller) and other demanding electronics.
+over the USB from the RPI). The other 12V buck powers the motors and other
+demanding electronics.
 
-The motors are controlled with a dual-channel PWM motor controller, where
-robot's left side is connected to one channel and its right side is connected
-to the other channel. The controller is connected to the Arduino and provides
-each channels current draw via analogue pin.
+The motors are controlled from Arduino via two MOSFET based H-bridges (for
+motor direction control) and MOSFET transistors connected to Arduino PWM output
+controlling power input. Left and right sides are controlled independently.
+Front and rear tracks are connected (id est not independently controlled).
 
 The Arduino is also connected to a current current sensor placed between BMS
 and remaining electronics. One of its analog input is also directly connected
