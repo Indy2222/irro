@@ -2,12 +2,12 @@
 Robot's Hardware
 ================
 
-There is an `Arduino Mega 2560 Rev3`_ onboard micro-controller which is
-connected to all sensors, motor drivers and other electronics. The Arduino
-communicates with an onboard `Raspberry Pi 3 Model B+`_ (RPI) computer over a
-USB serial port (see :doc:`serial_protocol` for details).
+There is an `Arduino Uno Rev3`_ onboard micro-controller which is connected to
+all sensors, motor drivers and other electronics. The Arduino communicates with
+an onboard `Raspberry Pi 3 Model B+`_ (RPI) computer over a USB serial port
+(see :doc:`serial_protocol` for details).
 
-.. _Arduino Mega 2560 Rev3: https://store.arduino.cc/mega-2560-r3
+.. _Arduino Uno Rev3: https://store.arduino.cc/arduino-uno-rev3
 .. _Raspberry Pi 3 Model B+: https://www.raspberrypi.org/products/raspberry-pi-3-model-b-plus/
 
 The RPI is connected to a `Pi NoIR Camera V2`_ providing both day and night
