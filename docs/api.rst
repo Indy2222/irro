@@ -2,7 +2,8 @@
 API
 ===
 
-Irro is running REST API on port 8080.
+Irro is running REST API on port 8080. Irro is regularly broadcasting a UDP
+datagram on port 34254, which could be used for its discovery on a LAN.
 
 .. http:put:: /low/led/(int:led_id)
 
