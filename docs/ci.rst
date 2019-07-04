@@ -14,3 +14,14 @@ whenever ``master`` branch changes. For it to work correctly, ``GITHUB_TOKEN``
 environment variable is configured_ for the Travis CI repository.
 
 .. _configured: https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings
+
+Travis also automatically uploads build artifacts to `Google Cloud Storage
+(GCS)`_ bucket `ci.gs.irro.mgn.cz`_. Travis authenticates to GCS with
+``GCS_ID`` and ``GCS_KEY`` environment variables. The access key can be
+obtained in `GCS interoperability`_ settings.
+
+.. _Google Cloud Storage (GCS): https://cloud.google.com/storage/
+
+.. _ci.gs.irro.mgn.cz: https://storage.googleapis.com/ci.gs.irro.mgn.cz/
+
+.. _GCS interoperability: https://cloud.google.com/storage/docs/interoperability
