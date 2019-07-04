@@ -8,14 +8,24 @@ script:
     docker run
     --volume `pwd`:/root/irro
     --workdir /root/irro
+    --env TRAVIS_COMMIT=$TRAVIS_COMMIT
     miindy/irro-ci:latest
     /root/irro/ci/ci.sh
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: false
-  local-dir: html/
-  fqdn: irro.mgn.cz
-  on:
-    branch: master
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep-history: false
+    local-dir: html/
+    fqdn: irro.mgn.cz
+    on:
+      branch: master
+
+  - provider: gcs
+    access_key_id: $GCS_ID
+    secret_access_key: $GCS_KEY
+    bucket: "ci.gs.irro.mgn.cz"
+    skip_cleanup: true
+    local-dir: artifacts/
+    on:
+      branch: master

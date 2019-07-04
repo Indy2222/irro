@@ -7,15 +7,16 @@ RUN apt-get update \
         curl \
         python3 \
         python3-pip \
-        # This two are needed by serialport Rust dependency.
-        pkg-config \
-        libudev-dev \
+        gcc-arm-linux-gnueabihf \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH "/root/.cargo/bin/:$PATH"
 RUN rustup component add rustfmt clippy-preview
+RUN rustup target add armv7-unknown-linux-gnueabihf
+ENV HOME /root
+RUN echo "[target.armv7-unknown-linux-gnueabihf]\nlinker = \"arm-linux-gnueabihf-gcc\"" >> $HOME/.cargo/config
 
 RUN mkdir /root/build
 WORKDIR /root/build

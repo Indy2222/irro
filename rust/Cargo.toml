@@ -5,9 +5,12 @@ authors = ["Martin Indra <martin.indra@mgn.cz>"]
 edition = "2018"
 
 [dependencies]
-serialport = "3.3.0"
 actix-web = "1.0.3"
 serde = "1.0.94"
+
+[dependencies.serialport]
+version = "3.3.0"
+default-features = false
 
 [lib]
 name = "irro"
