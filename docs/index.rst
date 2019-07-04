@@ -13,6 +13,7 @@ This is documentation of Irro robot. See its `GitHub repository`_.
    hw
    serial_protocol
    api
+   server
 
 Also see `Rust docs`_.
 

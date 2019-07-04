@@ -21,7 +21,7 @@ echo "\n\n"
 echo "Going to cross-compile for Raspberry Pi"
 echo "=======================================\n"
 cd rust
-cargo build --target=armv7-unknown-linux-gnueabihf --release
+PKG_CONFIG_ALLOW_CROSS=1 cargo build --target=armv7-unknown-linux-gnueabihf --release
 cd ..
 
 echo "\n\n"
