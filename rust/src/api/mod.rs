@@ -4,8 +4,11 @@
 use crate::arduino::binary::Message;
 use crate::arduino::cmd::led::LedMask;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use log::{info, warn};
 use std::io;
 use std::sync::mpsc::Sender;
+
+const SERVER_ADDRESS: &str = "0.0.0.0:8080";
 
 /// Start HTTP API server in blocking mode.
 ///
@@ -13,6 +16,8 @@ use std::sync::mpsc::Sender;
 ///
 /// * `sender` - A channel for communication with Arduino via serial port.
 pub fn run_http_server(sender: Sender<Message>) -> io::Result<()> {
+    info!("Starting HTTP server on {}...", SERVER_ADDRESS);
+
     HttpServer::new(move || {
         let scope_low = web::scope("/low").route("/led/{id}", web::put().to(put_led));
 
@@ -22,12 +27,14 @@ pub fn run_http_server(sender: Sender<Message>) -> io::Result<()> {
             .default_service(web::route().to(default_handler))
     })
     .keep_alive(120)
-    .bind("0.0.0.0:8080")
+    .bind(SERVER_ADDRESS)
     .unwrap()
     .run()
 }
 
-fn default_handler() -> impl Responder {
+fn default_handler(req: HttpRequest) -> impl Responder {
+    warn!("A non-existing endpoint was requested: {}", req.path());
+
     HttpResponse::NotFound().body(
         "API endpoint does not exist. Please visit \
          documentation at http://irro.mgn.cz.",
