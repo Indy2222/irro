@@ -22,7 +22,7 @@ pub fn run_http_server(sender: Sender<Message>) -> io::Result<()> {
             .default_service(web::route().to(default_handler))
     })
     .keep_alive(120)
-    .bind("localhost:8080")
+    .bind("0.0.0.0:8080")
     .unwrap()
     .run()
 }
