@@ -11,7 +11,7 @@ echo "\n\n"
 echo "Going to run Rust tests"
 echo "=======================\n"
 cd rust
-cargo test
+cargo --locked test
 cargo clippy -- -D warnings
 cargo fmt --all -- --check
 cargo doc --no-deps
