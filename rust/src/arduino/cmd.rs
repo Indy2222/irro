@@ -5,6 +5,7 @@ pub mod led {
     //! Implementation of [LED](http://irro.mgn.cz/hw.html#hw-leds) commands.
 
     use super::super::binary::Message;
+    use log::debug;
     use std::sync::mpsc::Sender;
 
     /// Bit mask of which LEDs are turned on/off. LED 0 is mapped to the most
@@ -43,6 +44,7 @@ pub mod led {
         /// * `sender` - sender as returned from
         ///   `super::binary::Connection::new()`.
         pub fn send(&self, sender: &Sender<Message>) {
+            debug!("Going to send LED command to Arduino: {}", self.0);
             // There is no interesting response.
             let (message, _) = Message::new(0x0000, vec![self.0]);
             sender.send(message).unwrap();

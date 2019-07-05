@@ -4,6 +4,7 @@
 //!
 //! See [protocol documentation](http://irro.mgn.cz/serial_protocol.html).
 
+use log::debug;
 use serialport::{self, DataBits, FlowControl, Parity, SerialPort, SerialPortSettings, StopBits};
 use std::collections::VecDeque;
 use std::io::prelude::*;
@@ -207,6 +208,12 @@ impl Connection {
     fn process_messages(&mut self) {
         self.waiting_messages.extend(self.receiver.try_iter());
 
+        debug!(
+            "Arduino serial: {} enqueued messages, {} in air bytes",
+            self.waiting_messages.len(),
+            self.in_air_queue.size()
+        );
+
         let mut remaining = ARDUINO_BUFFER_SIZE - self.in_air_queue.size();
         let mut to_send = Vec::new();
 
@@ -234,6 +241,8 @@ impl Connection {
         }
 
         if !to_send.is_empty() {
+            debug!("Going to send {} bytes to Arduino.", to_send.len());
+
             if let Err(err) = self.port.write_all(&to_send[..]) {
                 panic!("Error while writing data to Arduino: {}", err);
             }
@@ -250,6 +259,8 @@ impl Connection {
                 panic!("Error while reading data from Arduino: {}", err);
             }
         }
+
+        debug!("Received {} bytes of data from Arduino.", buf.len());
 
         let mut offset = 0;
         while offset < buf.len() {
