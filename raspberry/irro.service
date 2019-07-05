@@ -4,7 +4,8 @@ Documentation=http://irro.mgn.cz/
 
 [Service]
 Type=simple
-ExecStart=/home/irro/irro-cli
+ExecStartPre=/home/irro/irro-cli update --path /home/irro/irro-cli
+ExecStart=/home/irro/irro-cli start
 Restart=on-failure
 RestartSec=5
 User=irro
