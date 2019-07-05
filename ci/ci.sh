@@ -11,7 +11,7 @@ echo "\n\n"
 echo "Going to run Rust tests"
 echo "=======================\n"
 cd rust
-cargo test
+cargo --locked test
 cargo clippy -- -D warnings
 cargo fmt --all -- --check
 cargo doc --no-deps
@@ -34,6 +34,7 @@ cp -r docs/_build/* html/
 mkdir html/rust
 cp -r rust/target/doc/* html/rust/
 
+echo $TRAVIS_COMMIT > latest.txt
 ARTIFACTS_DIR=artifacts/commits/$TRAVIS_COMMIT
 mkdir -p $ARTIFACTS_DIR
 cp rust/target/armv7-unknown-linux-gnueabihf/release/irro-cli $ARTIFACTS_DIR/irro-cli
