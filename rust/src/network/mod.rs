@@ -16,9 +16,12 @@ pub fn start_broadcasting() -> std::io::Result<()> {
     thread::spawn(move || loop {
         // Sleep first, so the server has time to bootstrap.
         thread::sleep(Duration::from_secs(30));
-        socket
-            .send_to("Hello, I am Irro!\n".as_bytes(), BROADCAST_ADDR)
-            .unwrap();
+
+        let result = socket.send_to("Hello, I am Irro!\n".as_bytes(), BROADCAST_ADDR);
+        if let Err(error) = result {
+            panic!("Error while sending broadcast UDP packet: {}", error);
+        }
+
         info!("Broadcast sent to {}.", BROADCAST_ADDR);
     });
 

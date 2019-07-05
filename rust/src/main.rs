@@ -1,10 +1,9 @@
 use irro::arduino::binary::Connection;
 use irro::{api, logging::IrroLogger, network};
 use log::{error, info};
-use std::io;
 use std::panic;
 
-fn main() -> io::Result<()> {
+fn main() {
     log::set_logger(&IrroLogger).expect("Could not initialize logger.");
     log::set_max_level(log::LevelFilter::Trace);
 
@@ -15,7 +14,17 @@ fn main() -> io::Result<()> {
 
     info!("Starting Irro...");
 
-    network::start_broadcasting()?;
-    let sender = Connection::init_from_device("/dev/ttyACM0").unwrap();
-    api::run_http_server(sender)
+    match network::start_broadcasting() {
+        Ok(socket) => socket,
+        Err(error) => panic!("Error while starting broadcast loop: {}", error),
+    }
+
+    let sender = match Connection::init_from_device("/dev/ttyACM0") {
+        Ok(sender) => sender,
+        Err(error) => panic!("Error while connecting to Arduino: {}", error),
+    };
+
+    if let Err(error) = api::run_http_server(sender) {
+        panic!("Error while starting HTTP server: {}", error);
+    }
 }
