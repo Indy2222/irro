@@ -3,6 +3,8 @@ use irro::{api, logging::IrroLogger, network};
 use log::{error, info};
 use std::panic;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     log::set_logger(&IrroLogger).expect("Could not initialize logger.");
     log::set_max_level(log::LevelFilter::Trace);
@@ -12,7 +14,7 @@ fn main() {
         println!("{}", panic_info);
     }));
 
-    info!("Starting Irro...");
+    info!("Starting Irro version {}...", VERSION);
 
     match network::start_broadcasting() {
         Ok(socket) => socket,
