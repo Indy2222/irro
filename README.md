@@ -17,6 +17,8 @@ Repository Structure
 * [**/arduino**](/arduino) – [Arduino](https://www.arduino.cc/) source codes.
 * [**/ci**](/ci) – continuous integration related files.
 * [**/docs**](/docs) – [Sphinx](https://www.sphinx-doc.org) documentation.
+* [**/raspberry**](/raspberry) – setup scripts, systemd unit files, and similar
+  for Robot's onboard Raspberry Pi.
 * [**/rust**](/rust) – [Rust](https://www.rust-lang.org/) source codes, most of
   which is running on the robot's onboard
   [Raspberry Pi](https://www.raspberrypi.org/).

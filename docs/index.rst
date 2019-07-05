@@ -14,6 +14,7 @@ This is documentation of Irro robot. See its `GitHub repository`_.
    serial_protocol
    api
    server
+   raspberry
 
 Also see `Rust docs`_.
 
