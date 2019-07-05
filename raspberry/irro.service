@@ -1,0 +1,14 @@
+[Unit]
+Description=Irro
+Documentation=http://irro.mgn.cz/
+
+[Service]
+Type=simple
+ExecStart=/home/irro/irro-cli
+Restart=on-failure
+RestartSec=5
+User=irro
+Group=irro
+
+[Install]
+WantedBy=multi-user.target
