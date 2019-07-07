@@ -13,6 +13,8 @@ RUN apt-get update \
         pkg-config \
         libsystemd-dev \
         libsystemd-dev:armhf \
+        libssl1.0-dev \
+        libssl1.0-dev:armhf \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

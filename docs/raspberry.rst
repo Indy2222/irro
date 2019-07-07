@@ -2,6 +2,15 @@
 Raspberry Pi
 ============
 
+ * Install_ Ubuntu 18.04 on the Raspberry Pi 3 B+.
+
+.. _Install: https://wiki.ubuntu.com/ARM/RaspberryPi
+
+ * Add my ssh key to ``/home/ubuntu/.ssh/authorized_keys``
+
+ * Disable password login in ``/etc/ssh/sshd_config`` by setting
+   ``PasswordAuthentication no``.
+
  * Setup Irro user
 
 .. code-block:: bash
