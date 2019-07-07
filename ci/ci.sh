@@ -2,6 +2,8 @@
 
 set -e
 
+export IRRO_COMMIT=$TRAVIS_COMMIT
+
 echo "\n\n"
 echo "Going to build (and test) documentation"
 echo "=======================================\n"
