@@ -5,7 +5,17 @@ use log::{error, info};
 use std::panic;
 use std::path::Path;
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
+macro_rules! irro_version {
+    () => {
+        env!("CARGO_PKG_VERSION")
+    };
+}
+
+macro_rules! irro_long_version {
+    () => {
+        concat!("v", irro_version!(), " commit: ", env!("IRRO_COMMIT"))
+    };
+}
 
 fn main() {
     log::set_logger(&IrroLogger).expect("Could not initialize logger.");
@@ -32,7 +42,8 @@ fn main() {
         );
 
     let matches = App::new("irro-cli")
-        .version(VERSION)
+        .version(irro_version!())
+        .long_version(irro_long_version!())
         .author("Martin Indra <martin.indra@mgn.cz>")
         .about("CLI & server for Irro onboard computer.")
         .setting(AppSettings::SubcommandRequiredElseHelp)
@@ -52,7 +63,7 @@ fn main() {
 }
 
 fn start_server() {
-    info!("Starting Irro version {}...", VERSION);
+    info!("Starting Irro {}...", irro_long_version!());
 
     match network::start_broadcasting() {
         Ok(socket) => socket,
