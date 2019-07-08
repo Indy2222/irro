@@ -3,7 +3,7 @@
 
 use crate::arduino::binary::Message;
 use crate::arduino::cmd::led::LedMask;
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use log::{info, warn};
 use std::io;
 use std::sync::mpsc::Sender;
@@ -22,6 +22,7 @@ pub fn run_http_server(sender: Sender<Message>) -> io::Result<()> {
         let scope_low = web::scope("/low").route("/led/{id}", web::put().to(put_led));
 
         App::new()
+            .wrap(Logger::default())
             .data(sender.clone())
             .service(scope_low)
             .default_service(web::route().to(default_handler))
