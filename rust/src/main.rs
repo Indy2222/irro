@@ -1,6 +1,6 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use irro::arduino::binary::Connection;
-use irro::{api, logging::IrroLogger, network, update};
+use irro::{api, logging::IrroLogger, network, update, camera};
 use log::{error, info};
 use std::panic;
 use std::path::Path;
@@ -25,6 +25,9 @@ fn main() {
         error!("{}", panic_info);
         println!("{}", panic_info);
     }));
+
+    camera::capture();
+    return;
 
     let start_cmd = SubCommand::with_name("start").about("Starts Irro server.");
     let update_cmd = SubCommand::with_name("update")

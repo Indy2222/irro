@@ -11,6 +11,8 @@ Raspberry Pi
  * Disable password login in ``/etc/ssh/sshd_config`` by setting
    ``PasswordAuthentication no``.
 
+ * Enable camera, install raspi-config
+
  * Setup Irro user
 
 .. code-block:: bash

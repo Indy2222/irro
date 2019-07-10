@@ -1,3 +1,5 @@
+//! This module implements self-updating of this program.
+
 use log::{debug, info};
 use reqwest;
 use std::convert::TryFrom;
@@ -10,6 +12,12 @@ use std::path::{Path, PathBuf};
 
 const STORAGE_URL: &str = "https://storage.googleapis.com/ci.gs.irro.mgn.cz";
 
+/// Finds the newest available version of this program, downloads it and
+/// atomically replaces binary at a given path.
+///
+/// # Arguments
+///
+/// * `path` - path of the binary to create/replaces with the newest version.
 pub fn update(path: &Path) {
     if path.file_name().is_none() {
         panic!("Target path must be a file path.");

@@ -15,6 +15,8 @@ RUN apt-get update \
         libsystemd-dev:armhf \
         libssl1.0-dev \
         libssl1.0-dev:armhf \
+        libv4l-dev \
+        libv4l-dev:armhf \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
