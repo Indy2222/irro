@@ -5,10 +5,15 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.EditText
 import kotlinx.coroutines.*
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.SocketTimeoutException
+import android.text.InputType
+import android.view.View
+import android.widget.ProgressBar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,10 +21,19 @@ class MainActivity : AppCompatActivity() {
     private val broadcastTimeoutMs = 60_000
     private val findIrroJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + findIrroJob)
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        progressBar = findViewById(R.id.irro_discovery_progress_bar)
+
+        val cancelButton = findViewById<FloatingActionButton>(R.id.cancel_discovery_button)
+
+        cancelButton.setOnClickListener { view ->
+            setHostManually()
+        }
 
         findIrro()
     }
@@ -30,20 +44,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun findIrro() {
-        val context = this
         uiScope.launch {
+            progressBar.visibility = View.VISIBLE
             val irroHost = interceptIrroBroadcast()
+            progressBar.visibility = View.GONE
 
             if (irroHost == null) {
                 displayNotFound()
             } else {
-                val intent = Intent(context, RemoteActivity::class.java)
-                intent.putExtra("irroHost", irroHost)
-                startActivity(intent)
-                finish()
+                moveToControl(irroHost)
             }
         }
 
+    }
+
+    private fun moveToControl(irroHost: String) {
+        val intent = Intent(this, RemoteActivity::class.java)
+        intent.putExtra("irroHost", irroHost)
+        startActivity(intent)
+        finish()
     }
 
     private fun displayNotFound() {
@@ -55,15 +74,45 @@ class MainActivity : AppCompatActivity() {
                 DialogInterface.OnClickListener { dialog, id ->
                     findIrro()
                 })
+            setNeutralButton(R.string.set_manually,
+                DialogInterface.OnClickListener { dialog, id ->
+                    setHostManually()
+                })
             setNegativeButton(R.string.cancel,
                 DialogInterface.OnClickListener { dialog, id ->
                     finishAffinity()
                 })
         }
 
-
-        builder.create()
         builder.show()
+    }
+
+    private fun setHostManually() {
+        findIrroJob.cancel()
+        progressBar.visibility = View.GONE
+
+        val hostInput = EditText(this)
+        hostInput.setInputType(InputType.TYPE_CLASS_NUMBER)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.input_host)
+            .setView(hostInput)
+            .setPositiveButton(R.string.ok, null)
+            .create()
+
+        dialog.setOnShowListener(DialogInterface.OnShowListener { _ ->
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.setOnClickListener(View.OnClickListener {
+                if (hostInput.text.isEmpty()) {
+                    hostInput.error = "Host can't be empty."
+                } else {
+                    val irroHost = hostInput.text.toString()
+                    moveToControl(irroHost)
+                }
+            })
+        })
+
+        dialog.show()
     }
 
     private suspend fun interceptIrroBroadcast(): String? {
