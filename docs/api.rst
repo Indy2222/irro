@@ -13,7 +13,7 @@ datagram on port 34254, which could be used for its discovery on a LAN.
 
    .. sourcecode:: http
 
-      GET /low/led/0 HTTP/1.1
+      PUT /low/led/0 HTTP/1.1
       Host: irro.local
       Accept: application/json
 
