@@ -14,6 +14,9 @@ Repository Structure
 
 * [**/.travis.yml**](/.travis.yml) – [Travis CI](https://travis-ci.org/)
   configuration.
+* [**/android**](/android) – Client to the robot (remote control) written as an
+  [Android](https://www.android.com/) application in
+  [Kotlin](https://kotlinlang.org/).
 * [**/arduino**](/arduino) – [Arduino](https://www.arduino.cc/) source codes.
 * [**/ci**](/ci) – continuous integration related files.
 * [**/docs**](/docs) – [Sphinx](https://www.sphinx-doc.org) documentation.
