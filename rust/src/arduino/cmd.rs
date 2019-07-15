@@ -1,8 +1,8 @@
 //! Implementation of individual commands for Arduino. Please see
-//! [documentation of the commands](http://irro.mgn.cz/serial_protocol.html#serial-commands)
+//! [documentation of the commands](https://irro.cz/serial_protocol.html#serial-commands)
 
 pub mod led {
-    //! Implementation of [LED](http://irro.mgn.cz/hw.html#hw-leds) commands.
+    //! Implementation of [LED](https://irro.cz/hw.html#hw-leds) commands.
 
     use super::super::binary::Message;
     use log::debug;

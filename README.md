@@ -5,7 +5,7 @@ Irro
 [![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is my personal robot project and a very first robot I am building. Please
-visit [irro.mgn.cz](http://irro.mgn.cz) to see this project's documentation.
+visit [irro.cz](https://irro.cz) to see this project's documentation.
 
 This project is free software, see its [license](/LICENSE).
 

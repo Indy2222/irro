@@ -2,7 +2,7 @@
 //! Arduino over a serial port. The communication is handled in its own
 //! thread.
 //!
-//! See [protocol documentation](http://irro.mgn.cz/serial_protocol.html).
+//! See [protocol documentation](https://irro.cz/serial_protocol.html).
 
 use log::debug;
 use serialport::{self, DataBits, FlowControl, Parity, SerialPort, SerialPortSettings, StopBits};

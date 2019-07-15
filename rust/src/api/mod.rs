@@ -1,5 +1,5 @@
 //! This module implements REST API running on Irro's onboard computer.
-//! See [API documentation](http://irro.mgn.cz/api.html).
+//! See [API documentation](https://irro.cz/api.html).
 
 use crate::arduino::binary::Message;
 use crate::arduino::cmd::led::LedMask;
@@ -38,7 +38,7 @@ fn default_handler(req: HttpRequest) -> impl Responder {
 
     HttpResponse::NotFound().body(
         "API endpoint does not exist. Please visit \
-         documentation at http://irro.mgn.cz.",
+         documentation at https://irro.cz.",
     )
 }
 
