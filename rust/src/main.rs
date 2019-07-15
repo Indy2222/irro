@@ -45,7 +45,7 @@ fn main() {
         .version(irro_version!())
         .long_version(irro_long_version!())
         .author("Martin Indra <martin.indra@mgn.cz>")
-        .about("CLI & server for Irro onboard computer.")
+        .about("CLI & server for Irro onboard computer. See https://irro.cz/")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(start_cmd)
         .subcommand(update_cmd)
