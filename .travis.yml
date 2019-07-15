@@ -17,14 +17,14 @@ deploy:
     github-token: $GITHUB_TOKEN
     keep-history: false
     local-dir: html/
-    fqdn: irro.mgn.cz
+    fqdn: irro.cz
     on:
       branch: master
 
   - provider: gcs
     access_key_id: $GCS_ID
     secret_access_key: $GCS_KEY
-    bucket: "ci.gs.irro.mgn.cz"
+    bucket: "ci.gs.irro.cz"
     skip_cleanup: true
     local-dir: artifacts/
     on:

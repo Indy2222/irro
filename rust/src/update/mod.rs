@@ -8,7 +8,7 @@ use std::io::{BufReader, BufWriter};
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
-const STORAGE_URL: &str = "https://storage.googleapis.com/ci.gs.irro.mgn.cz";
+const STORAGE_URL: &str = "https://storage.googleapis.com/ci.gs.irro.cz";
 
 pub fn update(path: &Path) {
     if path.file_name().is_none() {

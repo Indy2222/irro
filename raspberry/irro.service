@@ -1,6 +1,6 @@
 [Unit]
 Description=Irro
-Documentation=http://irro.mgn.cz/
+Documentation=https://irro.cz/
 
 [Service]
 Type=simple
