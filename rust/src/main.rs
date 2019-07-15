@@ -23,7 +23,6 @@ fn main() {
 
     panic::set_hook(Box::new(|panic_info| {
         error!("{}", panic_info);
-        println!("{}", panic_info);
     }));
 
     let start_cmd = SubCommand::with_name("start").about("Starts Irro server.");
