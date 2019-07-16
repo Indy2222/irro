@@ -15,7 +15,7 @@ pub fn start_broadcasting() -> std::io::Result<()> {
 
     thread::spawn(move || loop {
         // Sleep first, so the server has time to bootstrap.
-        thread::sleep(Duration::from_secs(30));
+        thread::sleep(Duration::from_secs(10));
 
         let result = socket.send_to("Hello, I am Irro!\n".as_bytes(), BROADCAST_ADDR);
         if let Err(error) = result {
