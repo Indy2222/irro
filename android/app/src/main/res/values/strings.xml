@@ -2,7 +2,10 @@
     <string name="app_name">Irro</string>
     <string name="looking_for_irro">Looking for Irro on LAN...</string>
     <string name="retry">Retry</string>
+    <string name="set_manually">Set manually</string>
     <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
     <string name="irro_not_found_title">Irro not found</string>
     <string name="irro_not_found_text">Irro could not be found on local network.</string>
+    <string name="input_host">Set Irro host</string>
 </resources>
