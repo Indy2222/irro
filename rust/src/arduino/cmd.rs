@@ -7,6 +7,7 @@ pub mod led {
     use super::super::binary::Message;
     use log::debug;
     use std::sync::mpsc::Sender;
+    use std::time::Duration;
 
     /// Bit mask of which LEDs are turned on/off. LED 0 is mapped to the most
     /// significant bit.
@@ -37,6 +38,30 @@ pub mod led {
             LedMask(mask)
         }
 
+        /// Obtain current LED setup from Arduino.
+        ///
+        /// # Arguments
+        ///
+        /// * `sender` - message sender channel
+        ///
+        /// # Panics
+        ///
+        /// This method panics if command response is not retrieved from
+        /// Arduino within 10 seconds or if the retrieved data are incorrect.
+        pub fn read(sender: &Sender<Message>) -> Self {
+            let (message, receiver) = Message::new(0x0001, vec![]);
+            sender.send(message).unwrap();
+            let masks = receiver
+                .recv_timeout(Duration::from_secs(10))
+                .expect("LED mask not received from Arduino");
+
+            if masks.len() != 1 {
+                panic!("Expected 1 byte with LED mask, got {} bytes.", masks.len());
+            }
+
+            Self(masks[0])
+        }
+
         /// Command Arduino turn on/off LEDs with this mask.
         ///
         /// # Arguments
@@ -48,6 +73,17 @@ pub mod led {
             // There is no interesting response.
             let (message, _) = Message::new(0x0000, vec![self.0]);
             sender.send(message).unwrap();
+        }
+    }
+
+    /// Transform the bit mask into a Vec<bool>, where the LED 0 is at index 0
+    /// and so on.
+    impl Into<Vec<bool>> for LedMask {
+        fn into(self) -> Vec<bool> {
+            (0..8)
+                .rev()
+                .map(|bit| (self.0 & (1u8 << bit)) > 0)
+                .collect()
         }
     }
 
@@ -63,6 +99,22 @@ pub mod led {
             let pr = LedMask::from_bools(vec![true, false, true]);
             pr.send(test.sender());
             test.test(0x0000, vec![160]);
+        }
+
+        #[test]
+        fn test_read() {
+            use super::super::tests::MessageTestBuilder;
+
+            let test = MessageTestBuilder::new()
+                .response(vec![0b0100_0001])
+                .start();
+            let leds: Vec<bool> = LedMask::read(test.sender()).into();
+            test.test(0x0001, vec![]);
+
+            assert_eq!(
+                leds,
+                vec![false, true, false, false, false, false, false, true]
+            );
         }
     }
 }
