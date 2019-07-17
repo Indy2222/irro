@@ -57,9 +57,9 @@ pub mod led {
 
         #[test]
         fn test_send() {
-            use super::super::tests::MessageTest;
+            use super::super::tests::MessageTestBuilder;
 
-            let test = MessageTest::new();
+            let test = MessageTestBuilder::new().start();
             let pr = LedMask::from_bools(vec![true, false, true]);
             pr.send(test.sender());
             test.test(0x0000, vec![160]);
@@ -75,46 +75,81 @@ mod tests {
     use std::thread;
     use std::time::Duration;
 
-    pub struct MessageTest {
-        here_sender: Sender<Message>,
-        there_receiver: Receiver<Message>,
+    struct MessageLocal {
+        command: u16,
+        payload: Vec<u8>,
+        sender: Sender<Vec<u8>>,
     }
 
-    impl MessageTest {
+    pub struct MessageTestBuilder {
+        here_sender: Sender<Message>,
+        here_receiver: Receiver<MessageLocal>,
+        there_sender: Sender<MessageLocal>,
+        there_receiver: Receiver<Message>,
+        response: Vec<u8>,
+    }
+
+    pub struct MessageTest {
+        here_sender: Sender<Message>,
+        here_receiver: Receiver<MessageLocal>,
+        // Keep this so the channel is not closed until this struct is dropped.
+        _there_sender: Sender<MessageLocal>,
+    }
+
+    impl MessageTestBuilder {
         pub fn new() -> Self {
             let (here_sender, there_receiver) = mpsc::channel();
-            MessageTest {
+            let (there_sender, here_receiver) = mpsc::channel();
+
+            MessageTestBuilder {
                 here_sender,
+                here_receiver,
+                there_sender,
                 there_receiver,
+                response: Vec::new(),
             }
         }
 
-        pub fn sender(&self) -> &Sender<Message> {
-            &self.here_sender
+        pub fn response(mut self, response: Vec<u8>) -> Self {
+            self.response = response;
+            self
         }
 
-        pub fn test(self, expected_cmd: u16, expected_payload: Vec<u8>) {
+        pub fn start(self) -> MessageTest {
+            let there_sender = self.there_sender.clone();
             let there_receiver = self.there_receiver;
-            let (there_sender, here_receiver) = mpsc::channel();
+            let response = self.response.clone();
 
             thread::spawn(move || {
                 let message = there_receiver
                     .recv_timeout(Duration::from_millis(100))
                     .unwrap();
-                there_sender.send(message).unwrap();
+                let message_exposed: MessageLocal = unsafe { std::mem::transmute(message) };
+                // The channel may be closed already if the command doesn't
+                // read the response which is completely ok.
+                message_exposed.sender.send(response).unwrap_or(());
+                there_sender.send(message_exposed).unwrap();
             });
 
-            let message: Message = here_receiver
-                .recv_timeout(Duration::from_millis(100))
-                .unwrap();
-
-            struct MessageLocal {
-                command: u16,
-                payload: Vec<u8>,
-                _sender: Sender<Vec<u8>>,
+            MessageTest {
+                here_sender: self.here_sender,
+                here_receiver: self.here_receiver,
+                _there_sender: self.there_sender,
             }
+        }
+    }
 
-            let message_exposed: MessageLocal = unsafe { std::mem::transmute(message) };
+    impl MessageTest {
+        pub fn sender(&self) -> &Sender<Message> {
+            &self.here_sender
+        }
+
+        pub fn test(self, expected_cmd: u16, expected_payload: Vec<u8>) {
+            let message_exposed: MessageLocal = self
+                .here_receiver
+                .recv_timeout(Duration::from_millis(100))
+                .expect("shit");
+
             assert_eq!(message_exposed.command, expected_cmd);
             assert_eq!(message_exposed.payload, expected_payload);
         }
