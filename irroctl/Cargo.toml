@@ -1,0 +1,17 @@
+[package]
+name = "irroctl"
+version = "0.1.0"
+authors = ["Martin Indra <martin.indra@mgn.cz>"]
+edition = "2018"
+
+[dependencies]
+log = "0.4.7"
+simplelog = "0.6.0"
+
+[lib]
+name = "libirroctl"
+path = "src/lib.rs"
+
+[[bin]]
+name = "irroctl"
+path = "src/main.rs"
