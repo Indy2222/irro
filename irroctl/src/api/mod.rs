@@ -29,6 +29,11 @@ impl Client {
         self.client.get(&url).send()?.json()
     }
 
+    pub fn set_led(&self, led_id: u8, value: bool) -> Result<(), Error> {
+        let url = self.url(&format!("/low/led/{}", led_id));
+        self.client.put(&url).json(&value).send().map(|_| ())
+    }
+
     fn url(&self, endpoint: &str) -> String {
         format!("http://{}:{}{}", &self.host, self.port, endpoint)
     }
@@ -55,5 +60,21 @@ mod tests {
             leds,
             vec![true, false, true, false, false, false, false, false]
         );
+    }
+
+    #[test]
+    fn test_set_led() {
+        let mock = mock("PUT", "/low/led/1")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body("null")
+            .match_body("true")
+            .create();
+
+        let address = server_address();
+        let client = Client::from_ip_and_port(address.ip(), address.port());
+        client.set_led(1, true).unwrap();
+
+        mock.assert();
     }
 }
