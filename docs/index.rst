@@ -15,6 +15,7 @@ This is documentation of Irro robot. See its `GitHub repository`_.
    api
    server
    raspberry
+   irroctl
 
 Also see `Rust docs`_.
 
