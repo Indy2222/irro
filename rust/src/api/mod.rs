@@ -19,7 +19,9 @@ pub fn run_http_server(sender: Sender<Message>) -> io::Result<()> {
     info!("Starting HTTP server on {}...", SERVER_ADDRESS);
 
     HttpServer::new(move || {
-        let scope_low = web::scope("/low").route("/led/{id}", web::put().to(put_led));
+        let scope_low = web::scope("/low")
+            .route("/led/{id}", web::put().to(put_led))
+            .route("/led", web::get().to(get_leds));;
 
         App::new()
             .wrap(Logger::default())
@@ -40,6 +42,11 @@ fn default_handler(req: HttpRequest) -> impl Responder {
         "API endpoint does not exist. Please visit \
          documentation at https://irro.cz.",
     )
+}
+
+fn get_leds(data: web::Data<Sender<Message>>) -> impl Responder {
+    let led_states: Vec<bool> = LedMask::read(data.get_ref()).into();
+    HttpResponse::Ok().json(led_states)
 }
 
 fn put_led(

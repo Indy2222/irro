@@ -25,7 +25,16 @@ fn main() {
         error!("{}", panic_info);
     }));
 
-    let start_cmd = SubCommand::with_name("start").about("Starts Irro server.");
+    let start_cmd = SubCommand::with_name("start")
+        .about("Starts Irro server.")
+        .arg(
+            Arg::with_name("device")
+                .long("device")
+                .help("Arduino serial port device, for example /dev/ttyACM0")
+                .takes_value(true)
+                .required(true),
+        );
+
     let update_cmd = SubCommand::with_name("update")
         .about("Updates this program")
         .long_about(
@@ -51,7 +60,10 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        ("start", _) => start_server(),
+        ("start", Some(matches)) => {
+            let device = matches.value_of("device").unwrap();
+            start_server(device);
+        }
         ("update", Some(matches)) => {
             let path_str = matches.value_of("path").unwrap();
             let path = Path::new(path_str);
@@ -61,7 +73,7 @@ fn main() {
     }
 }
 
-fn start_server() {
+fn start_server(device: &str) {
     info!("Starting Irro {}...", irro_long_version!());
 
     match network::start_broadcasting() {
@@ -69,7 +81,7 @@ fn start_server() {
         Err(error) => panic!("Error while starting broadcast loop: {}", error),
     }
 
-    let sender = match Connection::init_from_device("/dev/ttyACM0") {
+    let sender = match Connection::init_from_device(device) {
         Ok(sender) => sender,
         Err(error) => panic!("Error while connecting to Arduino: {}", error),
     };

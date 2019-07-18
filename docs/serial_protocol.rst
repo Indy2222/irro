@@ -30,8 +30,11 @@ command.
 LED (0x00)
 ----------
 
+See :ref:`hw.leds`.
+
 * ``0x00`` (turn an LED off/on) -- this command turns on or off LEDs. Has one
   byte payload which is a bit LED on/off bit mask (1 for on, 0 for off). Most
   significant bit corresponds to LED number 0.
 
-  See :ref:`hw.leds`.
+* ``0x01`` (read current LED mask) -- this command has no payload. Its response
+  is one byte with current LED on/off states bit mask. See command ``0x00``.
