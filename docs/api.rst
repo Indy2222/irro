@@ -8,13 +8,13 @@ datagram on port 34254, which could be used for its discovery on a LAN.
 
 .. http:get:: /low/led
 
-   Retrieve current LED on/off states.
+   Retrieve current LED on/off states. See :ref:`hw.leds`.
 
    **Example request**:
 
    .. sourcecode:: http
 
-      PUT /low/led HTTP/1.1
+      GET /low/led HTTP/1.1
       Host: irro.local
       Accept: application/json
 
@@ -32,7 +32,7 @@ datagram on port 34254, which could be used for its discovery on a LAN.
 
 .. http:put:: /low/led/(int:led_id)
 
-   Turn on/off an LED `led_id`.
+   Turn on/off an LED `led_id`. See :ref:`hw.leds`.
 
    **Example request**:
 

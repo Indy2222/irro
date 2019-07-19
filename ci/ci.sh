@@ -20,10 +20,27 @@ cargo doc --no-deps
 cd ..
 
 echo "\n\n"
+echo "Going to run IrroCTL tests"
+echo "==========================\n"
+cd irroctl
+cargo --locked test
+cargo clippy -- -D warnings
+cargo fmt --all -- --check
+cargo doc --no-deps
+cd ..
+
+echo "\n\n"
 echo "Going to cross-compile for Raspberry Pi"
 echo "=======================================\n"
 cd rust
 PKG_CONFIG_ALLOW_CROSS=1 cargo build --target=armv7-unknown-linux-gnueabihf --release
+cd ..
+
+echo "\n\n"
+echo "Going build IrroCTL"
+echo "===================\n"
+cd irroctl
+cargo build --release
 cd ..
 
 echo "\n\n"
@@ -43,3 +60,4 @@ mkdir -p $ARTIFACTS_COMMIT_DIR
 echo $TRAVIS_COMMIT > $ARTIFACTS_DIR/latest.txt
 cp rust/target/armv7-unknown-linux-gnueabihf/release/irro-cli \
    $ARTIFACTS_COMMIT_DIR/irro-cli
+cp irroctl/target/release/irroctl $ARTIFACTS_COMMIT_DIR/irroctl
