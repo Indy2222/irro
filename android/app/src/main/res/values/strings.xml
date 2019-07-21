@@ -8,4 +8,9 @@
     <string name="irro_not_found_title">Irro not found</string>
     <string name="irro_not_found_text">Irro could not be found on local network.</string>
     <string name="input_host">Set Irro host</string>
+
+    <string name="switches_onboard_diod">onboard</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

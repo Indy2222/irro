@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/switches_grid_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    tools:context=".SwitchesFragment" >
+
+  <Switch
+      android:text="@string/switches_onboard_diod"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/onboard_switch"/>
+
+</GridLayout>
