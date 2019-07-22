@@ -2,12 +2,19 @@
 //! See API documentation at https://irro.cz/api.html
 
 use reqwest::{self, Error};
+use serde::Serialize;
 use std::net::IpAddr;
 
 pub struct Client {
     host: String,
     port: u16,
     client: reqwest::Client,
+}
+
+#[derive(Serialize)]
+struct MotorPowerRatio {
+    left: f32,
+    right: f32,
 }
 
 impl Client {
@@ -32,6 +39,23 @@ impl Client {
     pub fn set_led(&self, led_id: u8, value: bool) -> Result<(), Error> {
         let url = self.url(&format!("/low/led/{}", led_id));
         self.client.put(&url).json(&value).send().map(|_| ())
+    }
+
+    /// Set power ratio to left and right motors.
+    pub fn set_motor_power_ratio(&self, left: f32, right: f32) -> Result<(), Error> {
+        if !left.is_finite() || !right.is_finite() || left.abs() > 1.0 || right.abs() > 1.0 {
+            // Don't use is_infinite() as it doesn't include NaNs
+            panic!("Motor power ratio must be a number between -1 and 1.");
+        }
+
+        let url = self.url("/low/motor/power/ratio");
+        let payload = MotorPowerRatio { left, right };
+        self.client
+            .post(&url)
+            .json(&payload)
+            .send()?
+            .error_for_status()
+            .map(|_| ())
     }
 
     fn url(&self, endpoint: &str) -> String {
