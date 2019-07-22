@@ -38,3 +38,35 @@ See :ref:`hw.leds`.
 
 * ``0x01`` (read current LED mask) -- this command has no payload. Its response
   is one byte with current LED on/off states bit mask. See command ``0x00``.
+
+.. _serial.commands.motor:
+
+Motor (0x01)
+------------
+
+* ``0x00`` (set motors power ratio) -- this command sets left and right motor
+  power to a value between -32,768 (max power in backward direction) to 32,767
+  (max power in forward direction). 0 means that the motor is off. Note that
+  maximum motor power is regulated by Arduino so a single motor pair never
+  draws too much current.
+
+  The command payload has 4 bytes, first two bytes (i16) are left motor power
+  and the other two bytes are right motor power.
+
+Examples
+========
+
+The following command sets left motor to maximum forward direction and right
+motor to 25% backward direction.
+
+* Command: ``01 00 00 04 7f ff df ff``
+
+  #. Byte ``01`` indicates that the command belongs to
+     :ref:`motor <serial.commands.motor>` group.
+  #. Byte ``00`` indicates that this command sets motor power ratio.
+  #. Bytes ``00 04`` indicates payload to be 4 bytes long.
+  #. Bytes ``7f ff`` (32,767 in decimal) set the left motor to maximum forward
+     power.
+  #. Bytes ``df ff`` (-8193 in decimal) set the right motor 25% backward power.
+
+* Response: ``00 00`` -- response with no payload.
