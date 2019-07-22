@@ -3,7 +3,11 @@
 
 use reqwest::{self, Error};
 use serde::Serialize;
+use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
 use std::net::IpAddr;
+use std::path::Path;
 
 pub struct Client {
     host: String,
@@ -18,6 +22,50 @@ struct MotorPowerRatio {
 }
 
 impl Client {
+    /// Store Irro's IP to a file for later user. See `from_file()`.
+    ///
+    /// # Errors
+    ///
+    /// An error is returned if file couldn't be successfully written to.
+    pub fn store_to_file(path: &Path, ip: IpAddr) -> Result<(), String> {
+        let mut file = match File::create(path) {
+            Ok(file) => file,
+            Err(err) => return Err(format!("Failed to open {}: {}", path.display(), err)),
+        };
+
+        match writeln!(file, "{}", ip) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(format!("Failed to write to {}: {}", path.display(), err)),
+        }
+    }
+
+    /// Parse server info (IP) from a file and return new Client.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - path to the file with client info.
+    ///
+    /// # Errors
+    ///
+    /// An error is returned if file couldn't be successfully read or if
+    /// its contents can't be parsed.
+    pub fn from_file(path: &Path) -> Result<Self, String> {
+        match fs::read_to_string(path) {
+            Ok(content) => Self::from_str_ip(content.trim()),
+            Err(err) => Err(format!("Error while reading {}: {}", path.display(), err)),
+        }
+    }
+
+    /// # Arguments
+    ///
+    /// * `ip` - string with IP address, e.g. "127.0.0.1"
+    pub fn from_str_ip(ip: &str) -> Result<Self, String> {
+        match ip.parse::<IpAddr>() {
+            Ok(ip) => Ok(Self::from_ip(ip)),
+            Err(err) => Err(format!("Error while parsing IP address: {}", err)),
+        }
+    }
+
     pub fn from_ip(ip: IpAddr) -> Self {
         Self::from_ip_and_port(ip, 8080)
     }
