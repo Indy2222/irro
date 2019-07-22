@@ -9,6 +9,7 @@ reqwest = "0.9.18"
 clap = "2.33.0"
 log = "0.4.7"
 simplelog = "0.6.0"
+serde = "1.0.97"
 
 [dev-dependencies]
 mockito = "0.18.0"

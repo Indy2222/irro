@@ -3,8 +3,10 @@
 
 use crate::arduino::binary::Message;
 use crate::arduino::cmd::led::LedMask;
+use crate::arduino::cmd::motor::MotorPowerRatio;
 use actix_web::{middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use log::{info, warn};
+use serde::Deserialize;
 use std::io;
 use std::sync::mpsc::Sender;
 
@@ -21,7 +23,8 @@ pub fn run_http_server(sender: Sender<Message>) -> io::Result<()> {
     HttpServer::new(move || {
         let scope_low = web::scope("/low")
             .route("/led/{id}", web::put().to(put_led))
-            .route("/led", web::get().to(get_leds));;
+            .route("/led", web::get().to(get_leds))
+            .route("/motor/power/ratio", web::post().to(post_motor_power_ratio));
 
         App::new()
             .wrap(Logger::default())
@@ -68,5 +71,31 @@ fn put_led(
     }
 
     LedMask::from_bools(vec![value.into_inner()]).send(data.get_ref());
+    HttpResponse::Ok().json(())
+}
+
+#[derive(Deserialize)]
+struct MotorRatio {
+    left: f32,
+    right: f32,
+}
+
+fn post_motor_power_ratio(
+    data: web::Data<Sender<Message>>,
+    value: web::Json<MotorRatio>,
+) -> impl Responder {
+    let motor_ratio = value.into_inner();
+    let (left, right) = (motor_ratio.left, motor_ratio.right);
+
+    if !left.is_finite() || !right.is_finite() || left.abs() > 1.0 || right.abs() > 1.0 {
+        // Don't use is_infinite() as it doesn't include NaNs
+        return HttpResponse::BadRequest().body(
+            "Left and right motor power ratios have to be values between -1.0 \
+             and 1.0.",
+        );
+    }
+
+    let command = MotorPowerRatio::from_floats(left, right);
+    command.send(data.get_ref());
     HttpResponse::Ok().json(())
 }

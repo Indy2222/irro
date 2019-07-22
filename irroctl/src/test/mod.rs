@@ -62,5 +62,21 @@ pub fn integration() {
     validate!("Going to turn off onboard LED.");
     client.set_led(0, false).unwrap();
 
+    thread::sleep(Duration::from_secs(5));
+    validate!("Going to move forwards at 10% speed.");
+    client.set_motor_power_ratio(0.1, 0.1).unwrap();
+
+    thread::sleep(Duration::from_secs(5));
+    validate!("Going to move backwards 5% speed.");
+    client.set_motor_power_ratio(-0.05, -0.05).unwrap();
+
+    thread::sleep(Duration::from_secs(5));
+    validate!("Going to turn left.");
+    client.set_motor_power_ratio(0., 0.05).unwrap();
+
+    thread::sleep(Duration::from_secs(5));
+    validate!("Going to stop.");
+    client.set_motor_power_ratio(0., 0.).unwrap();
+
     info!("Integration test suit is finished.");
 }
