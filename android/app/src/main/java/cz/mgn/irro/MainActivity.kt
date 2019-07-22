@@ -106,6 +106,7 @@ class MainActivity : AppCompatActivity() {
                 if (hostInput.text.isEmpty()) {
                     hostInput.error = "Host can't be empty."
                 } else {
+                    dialog.dismiss()
                     val irroHost = hostInput.text.toString()
                     moveToControl(irroHost)
                 }
