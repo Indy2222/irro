@@ -56,3 +56,34 @@ datagram on port 34254, which could be used for its discovery on a LAN.
    :param led_id: ID of the LED
    :<json boolean: Request body is a single boolean. When ``true`` the LED is
                    turned on, it is turned off otherwise.
+
+
+.. http:post:: /low/motor/power/ratio
+
+   Set output power ratio to left and right motors.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      POST /low/motor/ratio HTTP/1.1
+      Host: irro.local
+      Accept: application/json
+
+      {
+          "left": 0.2,
+          "right: 0.15
+      }
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+
+      null
+
+   :>json float left: A number between -1 (full power backwards) and 1 (full
+       power forward).
+   :>json float right: See left.
