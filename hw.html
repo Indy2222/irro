@@ -1,0 +1,247 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Robot’s Hardware &mdash; Irro 0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Serial Protocol" href="serial_protocol.html" />
+    <link rel="prev" title="Continuous Integration" href="ci.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Irro
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ci.html">Continuous Integration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Robot’s Hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#leds">LEDs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="serial_protocol.html">Serial Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspberry.html">Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irroctl.html">IrroCTL</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Irro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Robot’s Hardware</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/hw.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="robot-s-hardware">
+<h1>Robot’s Hardware<a class="headerlink" href="#robot-s-hardware" title="Permalink to this headline">¶</a></h1>
+<p>There is an <a class="reference external" href="https://store.arduino.cc/arduino-uno-rev3">Arduino Uno Rev3</a> onboard micro-controller which is connected to
+all sensors, motor drivers and other electronics. The Arduino communicates with
+an onboard <a class="reference external" href="https://www.raspberrypi.org/products/raspberry-pi-3-model-b-plus/">Raspberry Pi 3 Model B+</a> (RPI) computer over a USB serial port
+(see <a class="reference internal" href="serial_protocol.html"><span class="doc">Serial Protocol</span></a> for details).</p>
+<p>The RPI is connected to a <a class="reference external" href="https://www.raspberrypi.org/products/pi-noir-camera-v2/">Pi NoIR Camera V2</a> providing both day and night
+vision (accompanied with NIR LEDs).</p>
+<p>The robot is actuated with four continuous tracks (two on each side) each
+powered by a 12V brushed DC motor.</p>
+<img alt="_images/chassis.jpeg" src="_images/chassis.jpeg" />
+<p>The robot is powered by six, serially connected, 18650 li-on battery cells with
+capacity of 3.3Ah. The batteries provide voltage between 25.2V (fully charged,
+no current draw) and 15V (BMS cut-off voltage) with maximum continuous current
+draw of 8A. The batteries are connected to a BMS on a separate PCB.</p>
+<p>Two buck converters, connected to the batteries, provide power for all
+electronics on the robot. One 5V buck powers the RPI (the Arduino is powered
+over the USB from the RPI). The other 12V buck powers the motors and other
+demanding electronics.</p>
+<p>The motors are controlled from Arduino via two MOSFET based H-bridges (for
+motor direction control) and MOSFET transistors connected to Arduino PWM output
+controlling power input. Left and right sides are controlled independently.
+Front and rear tracks are connected (id est not independently controlled).</p>
+<p>The Arduino is also connected to a current current sensor placed between BMS
+and remaining electronics. One of its analog input is also directly connected
+between two resistors on the battery to read its current voltage. This data
+will be used for battery power consumption and capacity estimation.</p>
+<div class="section" id="leds">
+<span id="hw-leds"></span><h2>LEDs<a class="headerlink" href="#leds" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>LED 0 – Arduino onboard LED.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="serial_protocol.html" class="btn btn-neutral float-right" title="Serial Protocol" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ci.html" class="btn btn-neutral float-left" title="Continuous Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Martin Indra
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

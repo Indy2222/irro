@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["api","This module implements REST API running on Irro's onboard computer. See API documentation."],["arduino","This module implements communication between Irro's onboard computer (Raspberry Pi) and Arduino. See HW and serial protocol documentation."],["logging",""],["network",""],["update",""]]});

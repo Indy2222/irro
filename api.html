@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API &mdash; Irro 0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Server" href="server.html" />
+    <link rel="prev" title="Serial Protocol" href="serial_protocol.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Irro
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ci.html">Continuous Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Robot’s Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serial_protocol.html">Serial Protocol</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspberry.html">Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irroctl.html">IrroCTL</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Irro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<p>Irro is running REST API on port 8080. Irro is regularly broadcasting a UDP
+datagram on port 34254, which could be used for its discovery on a LAN.</p>
+<dl class="get">
+<dt id="get--low-led">
+<code class="sig-name descname">GET </code><code class="sig-name descname">/low/led</code><a class="headerlink" href="#get--low-led" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve current LED on/off states. See <a class="reference internal" href="hw.html#hw-leds"><span class="std std-ref">LEDs</span></a>.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/low/led</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">irro.local</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span><span class="kc">true</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span><span class="p">]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list</strong> – List of booleans.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--low-led-(int-led_id)">
+<code class="sig-name descname">PUT </code><code class="sig-name descname">/low/led/</code><span class="sig-paren">(</span><em class="property">int: </em><em class="sig-param">led_id</em><span class="sig-paren">)</span><a class="headerlink" href="#put--low-led-(int-led_id)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn on/off an LED <cite>led_id</cite>. See <a class="reference internal" href="hw.html#hw-leds"><span class="std std-ref">LEDs</span></a>.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/low/led/0</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">irro.local</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+
+true
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="kc">null</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>led_id</strong> – ID of the LED</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>boolean</strong> – Request body is a single boolean. When <code class="docutils literal notranslate"><span class="pre">true</span></code> the LED is
+turned on, it is turned off otherwise.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--low-motor-power-ratio">
+<code class="sig-name descname">POST </code><code class="sig-name descname">/low/motor/power/ratio</code><a class="headerlink" href="#post--low-motor-power-ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set output power ratio to left and right motors.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/low/motor/ratio</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">irro.local</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+
+{
+    &quot;left&quot;: 0.2,
+    &quot;right: 0.15
+}
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="kc">null</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>left</strong> (<em>float</em>) – A number between -1 (full power backwards) and 1 (full
+power forward).</p></li>
+<li><p><strong>right</strong> (<em>float</em>) – See left.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="server.html" class="btn btn-neutral float-right" title="Server" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="serial_protocol.html" class="btn btn-neutral float-left" title="Serial Protocol" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Martin Indra
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

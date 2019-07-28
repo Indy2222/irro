@@ -1,0 +1,237 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Raspberry Pi &mdash; Irro 0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="IrroCTL" href="irroctl.html" />
+    <link rel="prev" title="Server" href="server.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Irro
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ci.html">Continuous Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Robot’s Hardware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serial_protocol.html">Serial Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irroctl.html">IrroCTL</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Irro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Raspberry Pi</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/raspberry.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="raspberry-pi">
+<h1>Raspberry Pi<a class="headerlink" href="#raspberry-pi" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://wiki.ubuntu.com/ARM/RaspberryPi">Install</a> Ubuntu 18.04 on the Raspberry Pi 3 B+.</p></li>
+</ul>
+</div></blockquote>
+<blockquote>
+<div><ul class="simple">
+<li><p>Add my ssh key to <code class="docutils literal notranslate"><span class="pre">/home/ubuntu/.ssh/authorized_keys</span></code></p></li>
+<li><p>Disable password login in <code class="docutils literal notranslate"><span class="pre">/etc/ssh/sshd_config</span></code> by setting
+<code class="docutils literal notranslate"><span class="pre">PasswordAuthentication</span> <span class="pre">no</span></code>.</p></li>
+<li><p>Setup Irro user</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>  adduser irro
+  <span class="c1"># So the user has access to Arduino serial port.</span>
+  usermod -a -G dialout irro
+
+* Add <span class="sb">``</span>/raspberry/irro.service<span class="sb">``</span> to <span class="sb">``</span>/etc/systemd/system/irro.service<span class="sb">``</span> and
+  call <span class="sb">``</span>systemctl <span class="nb">enable</span> irro<span class="sb">``</span>.
+
+* Make journald logs persistent: open <span class="sb">``</span>/etc/systemd/journald.conf<span class="sb">``</span> and <span class="nb">set</span>
+  <span class="sb">``</span><span class="nv">Storage</span><span class="o">=</span>persistent<span class="sb">``</span>.
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="irroctl.html" class="btn btn-neutral float-right" title="IrroCTL" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="server.html" class="btn btn-neutral float-left" title="Server" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Martin Indra
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

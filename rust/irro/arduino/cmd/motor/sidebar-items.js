@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["MotorPowerRatio","Power ratio of Irro's left and right motor."]]});

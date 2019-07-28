@@ -1,0 +1,10 @@
+(function() {var implementors = {};
+implementors["irro"] = [{text:"impl !<a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> for <a class=\"struct\" href=\"irro/arduino/binary/struct.Message.html\" title=\"struct irro::arduino::binary::Message\">Message</a>",synthetic:true,types:["irro::arduino::binary::Message"]},{text:"impl !<a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> for <a class=\"struct\" href=\"irro/arduino/binary/struct.Connection.html\" title=\"struct irro::arduino::binary::Connection\">Connection</a>",synthetic:true,types:["irro::arduino::binary::Connection"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> for <a class=\"struct\" href=\"irro/arduino/cmd/led/struct.LedMask.html\" title=\"struct irro::arduino::cmd::led::LedMask\">LedMask</a>",synthetic:true,types:["irro::arduino::cmd::led::LedMask"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> for <a class=\"struct\" href=\"irro/arduino/cmd/motor/struct.MotorPowerRatio.html\" title=\"struct irro::arduino::cmd::motor::MotorPowerRatio\">MotorPowerRatio</a>",synthetic:true,types:["irro::arduino::cmd::motor::MotorPowerRatio"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> for <a class=\"struct\" href=\"irro/logging/struct.IrroLogger.html\" title=\"struct irro::logging::IrroLogger\">IrroLogger</a>",synthetic:true,types:["irro::logging::IrroLogger"]},];
+
+            if (window.register_implementors) {
+                window.register_implementors(implementors);
+            } else {
+                window.pending_implementors = implementors;
+            }
+        
+})()

@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Serial Protocol &mdash; Irro 0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Robot’s Hardware" href="hw.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Irro
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ci.html">Continuous Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hw.html">Robot’s Hardware</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Serial Protocol</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#list-of-commands">List of Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#led-0x00">LED (0x00)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#motor-0x01">Motor (0x01)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspberry.html">Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="irroctl.html">IrroCTL</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Irro</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Serial Protocol</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/serial_protocol.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="serial-protocol">
+<h1>Serial Protocol<a class="headerlink" href="#serial-protocol" title="Permalink to this headline">¶</a></h1>
+<p>Robot’s Raspberry Pi communicates with Arduino over a USB serial port with a
+simple binary protocol. RPI sends commands and Arduino sends responses. Arduino
+never writes any data on its own.</p>
+<p>All data send over the serial port assume big-endian byte ordering.</p>
+<p>Each command is initiated with two bytes identifying the particular command
+followed by another two bytes indicating command payload length (which may
+be 0) followed by the command specific payload.</p>
+<p>Each response start with two bytes indicating response length (not including
+the these bytes). Response length is 0 for commands which have no response.</p>
+<p>RPI never writes more than 64 bytes of pending data (data of commands which
+have not been responded yet), this is to avoid Arduino serial buffer overflow.</p>
+<div class="section" id="list-of-commands">
+<span id="serial-commands"></span><h2>List of Commands<a class="headerlink" href="#list-of-commands" title="Permalink to this headline">¶</a></h2>
+<p>The commands are divided into groups. First command byte (most significant)
+indicates group and second command byte (least significant) indicates the
+command.</p>
+<div class="section" id="led-0x00">
+<h3>LED (0x00)<a class="headerlink" href="#led-0x00" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference internal" href="hw.html#hw-leds"><span class="std std-ref">LEDs</span></a>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x00</span></code> (turn an LED off/on) – this command turns on or off LEDs. Has one
+byte payload which is a bit LED on/off bit mask (1 for on, 0 for off). Most
+significant bit corresponds to LED number 0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x01</span></code> (read current LED mask) – this command has no payload. Its response
+is one byte with current LED on/off states bit mask. See command <code class="docutils literal notranslate"><span class="pre">0x00</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="motor-0x01">
+<span id="serial-commands-motor"></span><h3>Motor (0x01)<a class="headerlink" href="#motor-0x01" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x00</span></code> (set motors power ratio) – this command sets left and right motor
+power to a value between -32,768 (max power in backward direction) to 32,767
+(max power in forward direction). 0 means that the motor is off. Note that
+maximum motor power is regulated by Arduino so a single motor pair never
+draws too much current.</p>
+<p>The command payload has 4 bytes, first two bytes (i16) are left motor power
+and the other two bytes are right motor power.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following command sets left motor to maximum forward direction and right
+motor to 25% backward direction.</p>
+<ul class="simple">
+<li><p>Command: <code class="docutils literal notranslate"><span class="pre">01</span> <span class="pre">00</span> <span class="pre">00</span> <span class="pre">04</span> <span class="pre">7f</span> <span class="pre">ff</span> <span class="pre">df</span> <span class="pre">ff</span></code></p>
+<ol class="arabic simple">
+<li><p>Byte <code class="docutils literal notranslate"><span class="pre">01</span></code> indicates that the command belongs to
+<a class="reference internal" href="#serial-commands-motor"><span class="std std-ref">motor</span></a> group.</p></li>
+<li><p>Byte <code class="docutils literal notranslate"><span class="pre">00</span></code> indicates that this command sets motor power ratio.</p></li>
+<li><p>Bytes <code class="docutils literal notranslate"><span class="pre">00</span> <span class="pre">04</span></code> indicates payload to be 4 bytes long.</p></li>
+<li><p>Bytes <code class="docutils literal notranslate"><span class="pre">7f</span> <span class="pre">ff</span></code> (32,767 in decimal) set the left motor to maximum forward
+power.</p></li>
+<li><p>Bytes <code class="docutils literal notranslate"><span class="pre">df</span> <span class="pre">ff</span></code> (-8193 in decimal) set the right motor 25% backward power.</p></li>
+</ol>
+</li>
+<li><p>Response: <code class="docutils literal notranslate"><span class="pre">00</span> <span class="pre">00</span></code> – response with no payload.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="hw.html" class="btn btn-neutral float-left" title="Robot’s Hardware" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Martin Indra
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

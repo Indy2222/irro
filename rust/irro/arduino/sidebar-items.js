@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["binary","This module implements asynchronous binary communication with Irro's Arduino over a serial port. The communication is handled in its own thread."],["cmd","Implementation of individual commands for Arduino. Please see documentation of the commands"]]});

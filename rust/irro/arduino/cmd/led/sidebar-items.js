@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["LedMask","Bit mask of which LEDs are turned on/off. LED 0 is mapped to the most significant bit."]]});
